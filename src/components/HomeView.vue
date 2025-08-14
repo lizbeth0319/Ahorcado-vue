@@ -1,4 +1,4 @@
- <template>
+<template>
   <div class="home-screen">
     <h1>{{ translations[lang].title }}</h1>
 
@@ -49,84 +49,86 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'HomeView',
-  props: ['lang'], // Recibe el idioma desde App.vue
-  components: {
- 
-    CharacterSVG: {
-      props: ['type'],
-      template: `
-        <div class="character-svg-container">
-          <svg v-if="type === 'ninja'" viewBox="0 0 100 100" class="character-svg ninja">
-            <circle cx="50" cy="40" r="20" fill="#333"/> <rect x="35" y="55" width="30" height="20" rx="5" ry="5" fill="#333"/> <path d="M50 50 L30 50 L25 55 L30 60 L50 60 Z" fill="#555"/> <path d="M50 50 L70 50 L75 55 L70 60 L50 60 Z" fill="#555"/> <path d="M45 75 L35 90 L65 90 L55 75 Z" fill="#333"/> <polygon points="50,20 60,30 40,30" fill="#666"/> </svg>
-          <svg v-else-if="type === 'base'" viewBox="0 0 100 100" class="character-svg base">
-            <circle cx="50" cy="30" r="25" fill="#f0c080"/> <rect x="40" y="55" width="20" height="30" fill="#6a11cb"/> <rect x="30" y="55" width="10" height="20" fill="#555"/> <rect x="60" y="55" width="10" height="20" fill="#555"/> <rect x="40" y="85" width="10" height="15" fill="#444"/> <rect x="50" y="85" width="10" height="15" fill="#444"/> </svg>
-          <svg v-else-if="type === 'vaquero'" viewBox="0 0 100 100" class="character-svg vaquero">
-            <circle cx="50" cy="35" r="20" fill="#d0a060"/> <path d="M30 30 Q50 15 70 30 L65 35 L35 35 Z" fill="#8B4513"/> <rect x="40" y="55" width="20" height="30" fill="#A0522D"/> <rect x="30" y="55" width="10" height="20" fill="#555"/> <rect x="60" y="55" width="10" height="20" fill="#555"/> <rect x="40" y="85" width="10" height="15" fill="#444"/> <rect x="50" y="85" width="10" height="15" fill="#444"/> </svg>
-        </div>
-      `
-    }
+<script setup>
+import { ref, watch, computed } from 'vue';
+
+const props = defineProps({
+  lang: {
+    type: String,
+    required: true,
   },
-  data() {
-    return {
-      selectedCategory: 'paises',
-      selectedDifficulty: 'normal',
-      selectedCharacter: 'base', // Valor por defecto
-      categories: [
-        { id: 'paises', name: { es: 'Países', en: 'Countries' } },
-        { id: 'frutas', name: { es: 'Frutas', en: 'Fruits' } },
-        { id: 'profesiones', name: { es: 'Profesiones', en: 'Professions' } },
-        { id: 'animales', name: { es: 'Animales', en: 'Animals' } },
-        { id: 'colores', name: { es: 'Colores', en: 'Colors' } },
-        { id: 'comida', name: { es: 'Comida', en: 'Food' } },
-        { id: 'deportes', name: { es: 'Deportes', en: 'Sports' } },
-        { id: 'marcas', name: { es: 'Marcas', en: 'Brands' } },
-        { id: 'peliculas', name: { es: 'Películas', en: 'Movies' } },
-        { id: 'musica', name: { es: 'Música', en: 'Music' } },
-      ],
-      difficulties: [
-        { id: 'facil', name: { es: 'Fácil (8 errores)', en: 'Easy (8 errors)' }, maxErrors: 8 },
-        { id: 'normal', name: { es: 'Normal (6 errores)', en: 'Normal (6 errors)' }, maxErrors: 6 },
-        { id: 'dificil', name: { es: 'Difícil (4 errores)', en: 'Hard (4 errors)' }, maxErrors: 4 },
-      ],
-      characters: [
-        { id: 'ninja', name: { es: 'Ninja', en: 'Ninja' } },
-        { id: 'base', name: { es: 'Base', en: 'Base' } },
-        { id: 'vaquero', name: { es: 'Vaquero', en: 'Cowboy' } },
-      ],
-      translations: {
-        es: {
-          title: 'Juego del Ahorcado',
-          categoryLabel: 'Elige una categoría:',
-          difficultyLabel: 'Elige la dificultad:',
-          characterLabel: 'Elige tu personaje:',
-          startButton: '¡Empezar a Jugar!',
-          adPlaceholder: '¡!',//Aqui es donde pondremos el anuncio 
-        },
-        en: {
-          title: 'Hangman Game',
-          categoryLabel: 'Choose a Category:',
-          difficultyLabel: 'Choose Difficulty:',
-          characterLabel: 'Choose your character:',
-          startButton: 'Start Game!',
-          adPlaceholder: 'Your ad goes here!',
-        },
-      },
-    };
+});
+const emit = defineEmits(['startGame']);
+
+
+const CharacterSVG = {
+  props: ['type'],
+  template: `
+    <div class="character-svg-container">
+      <svg v-if="type === 'ninja'" viewBox="0 0 100 100" class="character-svg ninja">
+        <circle cx="50" cy="40" r="20" fill="#333"/> <rect x="35" y="55" width="30" height="20" rx="5" ry="5" fill="#333"/> <path d="M50 50 L30 50 L25 55 L30 60 L50 60 Z" fill="#555"/> <path d="M50 50 L70 50 L75 55 L70 60 L50 60 Z" fill="#555"/> <path d="M45 75 L35 90 L65 90 L55 75 Z" fill="#333"/> <polygon points="50,20 60,30 40,30" fill="#666"/> </svg>
+      <svg v-else-if="type === 'base'" viewBox="0 0 100 100" class="character-svg base">
+        <circle cx="50" cy="30" r="25" fill="#f0c080"/> <rect x="40" y="55" width="20" height="30" fill="#6a11cb"/> <rect x="30" y="55" width="10" height="20" fill="#555"/> <rect x="60" y="55" width="10" height="20" fill="#555"/> <rect x="40" y="85" width="10" height="15" fill="#444"/> <rect x="50" y="85" width="10" height="15" fill="#444"/> </svg>
+      <svg v-else-if="type === 'vaquero'" viewBox="0 0 100 100" class="character-svg vaquero">
+        <circle cx="50" cy="35" r="20" fill="#d0a060"/> <path d="M30 30 Q50 15 70 30 L65 35 L35 35 Z" fill="#8B4513"/> <rect x="40" y="55" width="20" height="30" fill="#A0522D"/> <rect x="30" y="55" width="10" height="20" fill="#555"/> <rect x="60" y="55" width="10" height="20" fill="#555"/> <rect x="40" y="85" width="10" height="15" fill="#444"/> <rect x="50" y="85" width="10" height="15" fill="#444"/> </svg>
+    </div>
+  `,
+};
+
+
+const selectedCategory = ref('paises');
+const selectedDifficulty = ref('normal');
+const selectedCharacter = ref('base');
+
+const categories = [
+  { id: 'paises', name: { es: 'Países', en: 'Countries' } },
+  { id: 'frutas', name: { es: 'Frutas', en: 'Fruits' } },
+  { id: 'profesiones', name: { es: 'Profesiones', en: 'Professions' } },
+  { id: 'animales', name: { es: 'Animales', en: 'Animals' } },
+  { id: 'colores', name: { es: 'Colores', en: 'Colors' } },
+  { id: 'comida', name: { es: 'Comida', en: 'Food' } },
+  { id: 'deportes', name: { es: 'Deportes', en: 'Sports' } },
+  { id: 'marcas', name: { es: 'Marcas', en: 'Brands' } },
+  { id: 'peliculas', name: { es: 'Películas', en: 'Movies' } },
+  { id: 'musica', name: { es: 'Música', en: 'Music' } },
+];
+const difficulties = [
+  { id: 'facil', name: { es: 'Fácil (8 errores)', en: 'Easy (8 errors)' }, maxErrors: 8 },
+  { id: 'normal', name: { es: 'Normal (6 errores)', en: 'Normal (6 errors)' }, maxErrors: 6 },
+  { id: 'dificil', name: { es: 'Difícil (4 errores)', en: 'Hard (4 errors)' }, maxErrors: 4 },
+];
+const characters = [
+  { id: 'ninja', name: { es: 'Ninja', en: 'Ninja' } },
+  { id: 'base', name: { es: 'Base', en: 'Base' } },
+  { id: 'vaquero', name: { es: 'Vaquero', en: 'Cowboy' } },
+];
+const translations = {
+  es: {
+    title: 'Juego del Ahorcado',
+    categoryLabel: 'Elige una categoría:',
+    difficultyLabel: 'Elige la dificultad:',
+    characterLabel: 'Elige tu personaje:',
+    startButton: '¡Empezar a Jugar!',
+    adPlaceholder: '¡!',
   },
-  methods: {
-    startGame() {
-      const selectedDifficultyObj = this.difficulties.find(d => d.id === this.selectedDifficulty);
-      this.$emit('startGame', {
-        category: this.selectedCategory,
-        difficulty: this.selectedDifficulty,
-        maxErrors: selectedDifficultyObj ? selectedDifficultyObj.maxErrors : 6,
-        character: this.selectedCharacter,
-      });
-    },
+  en: {
+    title: 'Hangman Game',
+    categoryLabel: 'Choose a Category:',
+    difficultyLabel: 'Choose Difficulty:',
+    characterLabel: 'Choose your character:',
+    startButton: 'Start Game!',
+    adPlaceholder: 'Your ad goes here!',
   },
+};
+
+const startGame = () => {
+  const selectedDifficultyObj = difficulties.find(d => d.id === selectedDifficulty.value);
+  emit('startGame', {
+    category: selectedCategory.value,
+    difficulty: selectedDifficulty.value,
+    maxErrors: selectedDifficultyObj ? selectedDifficultyObj.maxErrors : 6,
+    character: selectedCharacter.value,
+  });
 };
 </script>
 
@@ -215,7 +217,7 @@ select {
   transition: all 0.3s ease;
   flex: 1 1 120px;
   max-width: 150px;
-  background-color: #f9f9f9; /* Fondo de la tarjeta */
+  background-color: #f9f9f9;
 }
 
 .character-card.active {
@@ -229,31 +231,22 @@ select {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-/* Estilos BASE PARA LOS PERSONAJES (DE MOMENTO SON PALITOS, MI CHAMBA, NO TOCAR) */
 .character-svg-container {
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  background-color: #eee; 
+  background-color: #eee;
   display: flex;
   justify-content: center;
   align-items: center;
-  overflow: hidden; 
+  overflow: hidden;
 }
 
 .character-svg {
   width: 100%;
   height: 100%;
-  display: block; /* Elimina espacio extra */
+  display: block;
 }
-
-/* .character-svg.ninja {
-}
-.character-svg.base {
-}                                      //ESPACIO RESERVADO PARA LOS PERSONAJES
-.character-svg.vaquero {
-} */
-
 
 .start-button {
   padding: 15px 30px;
