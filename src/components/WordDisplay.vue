@@ -1,4 +1,4 @@
- <template>
+<template>
   <div class="word-display">
     <span
       v-for="(char, index) in displayWord"
@@ -10,18 +10,24 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'WordDisplay',
-  props: ['word', 'guessedLetters'],
-  computed: {
-    displayWord() {
-      // Filtra caracteres que no son letras o espacios (ej. guiones, números si los hubiera en la palabra)
-      // Y convierte la palabra a un array de caracteres para iterar
-      return this.word.split('');
-    }
-  }
-};
+<script setup>
+import { computed } from 'vue';
+
+const props = defineProps({
+  word: {
+    type: String,
+    required: true,
+  },
+  guessedLetters: {
+    type: Set,
+    required: true,
+  },
+});
+
+const displayWord = computed(() => {
+
+  return props.word.split('');
+});
 </script>
 
 <style scoped>
