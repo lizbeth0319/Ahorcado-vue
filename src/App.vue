@@ -10,7 +10,7 @@
       @startGame="handleStartGame"
       :lang="lang"
     />
-    <GameView 
+    <GameView
       v-else-if="currentView === 'game'"
       :gameOptions="gameOptions"
       @endGame="handleEndGame"
@@ -19,44 +19,48 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref } from 'vue';
 import HomeView from './components/HomeView.vue';
 import GameView from './components/GameView.vue';
 
-export default {
-  name: 'App',
-  components: {
-    HomeView,
-    GameView,
-  },
-  data() {
-    return {
-      currentView: 'home', // La vista inicial es HomeView
-      gameOptions: {},     // Objeto para pasar las opciones de juego a GameView
-      lang: 'es',          // Idioma por defecto
-    };
-  },
-  methods: {
-    handleStartGame(options) {
-      this.gameOptions = options;
-      this.currentView = 'game'; // Cambia a la vista del juego
-    },
-    handleEndGame() {
-      this.currentView = 'home'; // Vuelve a la vista de inicio
-    },
-    toggleLang(newLang) {
-      this.lang = newLang; // Cambia el idioma
-    }
-  },
+
+const currentView = ref('home');
+const gameOptions = ref({});
+const lang = ref('es');
+
+const handleStartGame = (options) => {
+  gameOptions.value = options;
+  currentView.value = 'game';
+};
+
+const handleEndGame = () => {
+  currentView.value = 'home';
+};
+
+const toggleLang = (newLang) => {
+  lang.value = newLang;
 };
 </script>
 
 <style>
+#app {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background-image: url('https://images.unsplash.com/photo-1517400508544-738982390f77?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+  background-size: cover;
+  background-position: center;
+  color: #fff;
+}
+
 .language-selector {
   position: absolute;
   top: 20px;
   right: 20px;
-  z-index: 100; /* Asegura que esté por encima de otros elementos */
+  z-index: 100;
 }
 
 .language-selector button {
