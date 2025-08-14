@@ -1,8 +1,8 @@
- <template>
+<template>
   <div class="game-over-modal-overlay">
     <div class="game-over-modal-content">
       <h2 :class="{ 'win-text': won, 'lose-text': !won }">
-        {{ won ? translations[lang].winMessage : translations[lang].loseMessage }}
+        {{ message }}
       </h2>
       <p>
         {{ translations[lang].theWordWas }} <strong>"{{ word }}"</strong>
@@ -20,31 +20,46 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'GameOverModal',
-  props: ['won', 'word', 'lang'],
-  data() {
-    return {
-      translations: {
-        es: {
-          winMessage: '¡Felicidades, ganaste!',
-          loseMessage: '¡Lo siento, perdiste!',
-          theWordWas: 'La palabra era:',
-          playAgainButton: 'Jugar de Nuevo',
-          returnToMenuButton: 'Volver al Menú',
-        },
-        en: {
-          winMessage: 'Congratulations, you won!',
-          loseMessage: 'Sorry, you lost!',
-          theWordWas: 'The word was:',
-          playAgainButton: 'Play Again',
-          returnToMenuButton: 'Return to Menu',
-        },
-      },
-    };
+<script setup>
+import { computed } from 'vue';
+
+const props = defineProps({
+  won: {
+    type: Boolean,
+    required: true,
+  },
+  word: {
+    type: String,
+    required: true,
+  },
+  lang: {
+    type: String,
+    default: 'es',
+    validator: (value) => ['es', 'en'].includes(value),
+  },
+});
+
+const translations = {
+  es: {
+    winMessage: '¡Felicidades, ganaste!',
+    loseMessage: '¡Lo siento, perdiste!',
+    theWordWas: 'La palabra era:',
+    playAgainButton: 'Jugar de Nuevo',
+    returnToMenuButton: 'Volver al Menú',
+  },
+  en: {
+    winMessage: 'Congratulations, you won!',
+    loseMessage: 'Sorry, you lost!',
+    theWordWas: 'The word was:',
+    playAgainButton: 'Play Again',
+    returnToMenuButton: 'Return to Menu',
   },
 };
+
+const message = computed(() => {
+  return props.won ? translations[props.lang].winMessage : translations[props.lang].loseMessage;
+});
+
 </script>
 
 <style scoped>
