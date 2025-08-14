@@ -1,4 +1,4 @@
- <template>
+<template>
   <div class="game-screen" :style="{ backgroundImage: `url(${getBackground})` }">
     <div class="game-area">
       <div class="section hangman-section">
@@ -26,160 +26,150 @@
       :lang="lang"
     />
 
-    <div class="advertisement-placeholder">   <!-- esto tambien es para el anuncio  asi que no me lo borres pls-->
+    <div class="advertisement-placeholder">
       <p>{{ translations[lang].adPlaceholder }}</p>
     </div>
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, watch, onMounted } from 'vue';
 import HangmanDisplay from './HangmanDisplay.vue';
 import Keyboard from './Keyboard.vue';
 import WordDisplay from './WordDisplay.vue';
 import GameOverModal from './GameOverModal.vue';
 
-// IMAGENES DE FONDO, las ando llamando de assests, si no carga un fondo es porque las imagnes no se subieron bien
 import ninjaBg from '@/assets/ninja-bg.jpg';
 import vaqueroBg from '@/assets/vaquero-bg.jpg';
 import baseBg from '@/assets/base-bg.jpg';
 
-export default {
-  name: 'GameView',
-  components: {
-    HangmanDisplay,
-    Keyboard,
-    WordDisplay,
-    GameOverModal,
-  },
-  props: ['gameOptions', 'lang'],
-  data() {
-    return {
-      wordList: {
-        paises: { es: ['COLOMBIA', 'MEXICO', 'ESPAÑA', 'CHILE', 'ARGENTINA', 'PERU', 'BRASIL', 'ECUADOR', 'CANADA', 'JAPON'], en: ['COLOMBIA', 'MEXICO', 'SPAIN', 'CHILE', 'ARGENTINA', 'PERU', 'BRAZIL', 'ECUADOR', 'CANADA', 'JAPAN'] },
-        frutas: { es: ['MANZANA', 'PLATANO', 'FRESA', 'UVA', 'NARANJA', 'PIÑA', 'KIWI', 'PERA', 'CEREZA', 'LIMON'], en: ['APPLE', 'BANANA', 'STRAWBERRY', 'GRAPE', 'ORANGE', 'PINEAPPLE', 'KIWI', 'PEAR', 'CHERRY', 'LEMON'] },
-        profesiones: { es: ['MEDICO', 'INGENIERO', 'PROFESOR', 'POLICIA', 'ARQUITECTO', 'COCINERO', 'ARTISTA', 'PILOTO', 'PROGRAMADOR', 'DETECTIVE'], en: ['DOCTOR', 'ENGINEER', 'TEACHER', 'POLICE', 'ARCHITECT', 'CHEF', 'ARTIST', 'PILOT', 'PROGRAMMER', 'DETECTIVE'] },
-        animales: { es: ['LEON', 'TIGRE', 'ELEFANTE', 'JIRAFA', 'MONO', 'OSO', 'PERRO', 'GATO', 'DELFIN', 'LOBO'], en: ['LION', 'TIGER', 'ELEPHANT', 'GIRAFFE', 'MONKEY', 'BEAR', 'DOG', 'CAT', 'DOLPHIN', 'WOLF'] },
-        colores: { es: ['ROJO', 'AZUL', 'VERDE', 'AMARILLO', 'MORADO', 'NARANJA', 'BLANCO', 'NEGRO', 'ROSA', 'GRIS'], en: ['RED', 'BLUE', 'GREEN', 'YELLOW', 'PURPLE', 'ORANGE', 'WHITE', 'BLACK', 'PINK', 'GREY'] },
-        comida: { es: ['PIZZA', 'HAMBURGUESA', 'PASTA', 'SOPA', 'ENSALADA', 'SUSHI', 'TACOS', 'POLLO', 'ARROZ', 'PESCADO'], en: ['PIZZA', 'HAMBURGER', 'PASTA', 'SOUP', 'SALAD', 'SUSHI', 'TACOS', 'CHICKEN', 'RICE', 'FISH'] },
-        deportes: { es: ['FUTBOL', 'BALONCESTO', 'TENIS', 'NATACION', 'VOLEIBOL', 'RUGBY', 'CICLISMO', 'ATLETISMO', 'BOXEO', 'GOLF'], en: ['FOOTBALL', 'BASKETBALL', 'TENNIS', 'SWIMMING', 'VOLLEYBALL', 'RUGBY', 'CYCLING', 'ATHLETICS', 'BOXING', 'GOLF'] },
-        marcas: { es: ['NIKE', 'ADIDAS', 'APPLE', 'SAMSUNG', 'COCACOLA', 'PEPSI', 'SONY', 'MICROSOFT', 'GOOGLE', 'BMW'], en: ['NIKE', 'ADIDAS', 'APPLE', 'SAMSUNG', 'COCACOLA', 'PEPSI', 'SONY', 'MICROSOFT', 'GOOGLE', 'BMW'] },
-        peliculas: { es: ['TITANIC', 'AVATAR', 'MATRIX', 'GLADIADOR', 'ORIGEN', 'INTERESTELAR', 'CREPUSCULO', 'SPIDERMAN', 'PIRATAS', 'SHREK'], en: ['TITANIC', 'AVATAR', 'MATRIX', 'GLADIATOR', 'INCEPTION', 'INTERSTELLAR', 'TWILIGHT', 'SPIDERMAN', 'PIRATES', 'SHREK'] },
-        musica: { es: ['JAZZ', 'POP', 'ROCK', 'SALSA', 'REGGAE', 'HIPHOP', 'CLASSIC', 'BLUES', 'COUNTRY', 'METAL'], en: ['JAZZ', 'POP', 'ROCK', 'SALSA', 'REGGAE', 'HIPHOP', 'CLASSIC', 'BLUES', 'COUNTRY', 'METAL'] },
-      },
-      currentWord: '',
-      guessedLetters: new Set(),
-      errors: 0,
-      won: false,
-      gameOver: false,
-      translations: {
-        es: {
-          errorsLeft: 'Errores restantes',
-          category: 'Categoría',
-          difficulty: 'Dificultad',
-          adPlaceholder: '¡Tu anuncio va aquí!',
-          paises: 'Países', frutas: 'Frutas', profesiones: 'Profesiones', animales: 'Animales', colores: 'Colores',
-          comida: 'Comida', deportes: 'Deportes', marcas: 'Marcas', peliculas: 'Películas', musica: 'Música',
-          facil: 'Fácil', normal: 'Normal', dificil: 'Difícil',
-        },
-        en: {
-          errorsLeft: 'Errors remaining',
-          category: 'Category',
-          difficulty: 'Difficulty',
-          adPlaceholder: 'Your ad goes here!',
-          paises: 'Countries', frutas: 'Fruits', profesiones: 'Professions', animales: 'Animals', colores: 'Colors',
-          comida: 'Food', deportes: 'Sports', marcas: 'Brands', peliculas: 'Movies', musica: 'Music',
-          facil: 'Easy', normal: 'Normal', dificil: 'Hard',
-        },
-      },
-    };
-  },
-  computed: {
-    getBackground() {
-      switch (this.gameOptions.character) {
-        case 'ninja':
-          return ninjaBg;
-        case 'vaquero':
-          return vaqueroBg;
-        case 'base':
-        default:
-          return baseBg;
-      }
-    }
-  },
-  watch: {
-    errors(newVal) {
-      if (newVal >= this.gameOptions.maxErrors) {
-        this.endGame(false);
-      }
-    },
-    guessedLetters: {
-      handler() {
-        if (this.currentWord) {
-          const allLettersGuessed = [...this.currentWord].every(letter =>
-            this.guessedLetters.has(letter) || letter === ' '
-          );
-          if (allLettersGuessed) {
-            this.endGame(true);
-          }
-        }
-      },
-      deep: true,
-    },
-    'gameOptions.category': {
-      immediate: true,
-      handler() {
-        this.initializeGame();
-      }
-    },
-    lang: {
-        handler() {
-            this.initializeGame();
-        }
-    }
-  },
-  methods: {
-    initializeGame() {
-      const wordsForCategory = this.wordList[this.gameOptions.category][this.lang];
-      this.currentWord = wordsForCategory[Math.floor(Math.random() * wordsForCategory.length)].toUpperCase();
-      this.guessedLetters = new Set();
-      this.errors = 0;
-      this.won = false;
-      this.gameOver = false;
-    },
-    handleLetterGuess(letter) {
-      if (this.gameOver) return;
+const props = defineProps(['gameOptions', 'lang']);
+const emit = defineEmits(['endGame']);
 
-      const upperCaseLetter = letter.toUpperCase();
-      if (this.guessedLetters.has(upperCaseLetter)) {
-        return;
-      }
 
-      this.guessedLetters.add(upperCaseLetter);
-
-      if (!this.currentWord.includes(upperCaseLetter)) {
-        this.errors++;
-      }
-    },
-    endGame(hasWon) {
-      this.won = hasWon;
-      this.gameOver = true;
-    },
-    resetGame() {
-      this.initializeGame();
-    },
-    returnToMenu() {
-      this.$emit('endGame');
-    },
-    getCategoryName(id) {
-        return this.translations[this.lang][id] || id;
-    },
-    getDifficultyName(id) {
-        return this.translations[this.lang][id] || id;
-    }
+const wordList = {
+  paises: { es: ['COLOMBIA', 'MEXICO', 'ESPAÑA', 'CHILE', 'ARGENTINA', 'PERU', 'BRASIL', 'ECUADOR', 'CANADA', 'JAPON'], en: ['COLOMBIA', 'MEXICO', 'SPAIN', 'CHILE', 'ARGENTINA', 'PERU', 'BRAZIL', 'ECUADOR', 'CANADA', 'JAPAN'] },
+  frutas: { es: ['MANZANA', 'PLATANO', 'FRESA', 'UVA', 'NARANJA', 'PIÑA', 'KIWI', 'PERA', 'CEREZA', 'LIMON'], en: ['APPLE', 'BANANA', 'STRAWBERRY', 'GRAPE', 'ORANGE', 'PINEAPPLE', 'KIWI', 'PEAR', 'CHERRY', 'LEMON'] },
+  profesiones: { es: ['MEDICO', 'INGENIERO', 'PROFESOR', 'POLICIA', 'ARQUITECTO', 'COCINERO', 'ARTISTA', 'PILOTO', 'PROGRAMADOR', 'DETECTIVE'], en: ['DOCTOR', 'ENGINEER', 'TEACHER', 'POLICE', 'ARCHITECT', 'CHEF', 'ARTIST', 'PILOT', 'PROGRAMMER', 'DETECTIVE'] },
+  animales: { es: ['LEON', 'TIGRE', 'ELEFANTE', 'JIRAFA', 'MONO', 'OSO', 'PERRO', 'GATO', 'DELFIN', 'LOBO'], en: ['LION', 'TIGER', 'ELEPHANT', 'GIRAFFE', 'MONKEY', 'BEAR', 'DOG', 'CAT', 'DOLPHIN', 'WOLF'] },
+  colores: { es: ['ROJO', 'AZUL', 'VERDE', 'AMARILLO', 'MORADO', 'NARANJA', 'BLANCO', 'NEGRO', 'ROSA', 'GRIS'], en: ['RED', 'BLUE', 'GREEN', 'YELLOW', 'PURPLE', 'ORANGE', 'WHITE', 'BLACK', 'PINK', 'GREY'] },
+  comida: { es: ['PIZZA', 'HAMBURGUESA', 'PASTA', 'SOPA', 'ENSALADA', 'SUSHI', 'TACOS', 'POLLO', 'ARROZ', 'PESCADO'], en: ['PIZZA', 'HAMBURGER', 'PASTA', 'SOUP', 'SALAD', 'SUSHI', 'TACOS', 'CHICKEN', 'RICE', 'FISH'] },
+  deportes: { es: ['FUTBOL', 'BALONCESTO', 'TENIS', 'NATACION', 'VOLEIBOL', 'RUGBY', 'CICLISMO', 'ATLETISMO', 'BOXEO', 'GOLF'], en: ['FOOTBALL', 'BASKETBALL', 'TENNIS', 'SWIMMING', 'VOLLEYBALL', 'RUGBY', 'CYCLING', 'ATHLETICS', 'BOXING', 'GOLF'] },
+  marcas: { es: ['NIKE', 'ADIDAS', 'APPLE', 'SAMSUNG', 'COCACOLA', 'PEPSI', 'SONY', 'MICROSOFT', 'GOOGLE', 'BMW'], en: ['NIKE', 'ADIDAS', 'APPLE', 'SAMSUNG', 'COCACOLA', 'PEPSI', 'SONY', 'MICROSOFT', 'GOOGLE', 'BMW'] },
+  peliculas: { es: ['TITANIC', 'AVATAR', 'MATRIX', 'GLADIADOR', 'ORIGEN', 'INTERESTELAR', 'CREPUSCULO', 'SPIDERMAN', 'PIRATAS', 'SHREK'], en: ['TITANIC', 'AVATAR', 'MATRIX', 'GLADIATOR', 'INCEPTION', 'INTERSTELLAR', 'TWILIGHT', 'SPIDERMAN', 'PIRATES', 'SHREK'] },
+  musica: { es: ['JAZZ', 'POP', 'ROCK', 'SALSA', 'REGGAE', 'HIPHOP', 'CLASSIC', 'BLUES', 'COUNTRY', 'METAL'], en: ['JAZZ', 'POP', 'ROCK', 'SALSA', 'REGGAE', 'HIPHOP', 'CLASSIC', 'BLUES', 'COUNTRY', 'METAL'] },
+};
+const translations = {
+  es: {
+    errorsLeft: 'Errores restantes',
+    category: 'Categoría',
+    difficulty: 'Dificultad',
+    adPlaceholder: '¡Tu anuncio va aquí!',
+    paises: 'Países', frutas: 'Frutas', profesiones: 'Profesiones', animales: 'Animales', colores: 'Colores',
+    comida: 'Comida', deportes: 'Deportes', marcas: 'Marcas', peliculas: 'Películas', musica: 'Música',
+    facil: 'Fácil', normal: 'Normal', dificil: 'Difícil',
   },
-  created() {
+  en: {
+    errorsLeft: 'Errors remaining',
+    category: 'Category',
+    difficulty: 'Difficulty',
+    adPlaceholder: 'Your ad goes here!',
+    paises: 'Countries', frutas: 'Fruits', profesiones: 'Professions', animales: 'Animals', colores: 'Colors',
+    comida: 'Food', deportes: 'Sports', marcas: 'Brands', peliculas: 'Movies', musica: 'Music',
+    facil: 'Easy', normal: 'Normal', dificil: 'Hard',
   },
 };
+
+const currentWord = ref('');
+const guessedLetters = ref(new Set());
+const errors = ref(0);
+const won = ref(false);
+const gameOver = ref(false);
+
+const getBackground = computed(() => {
+  switch (props.gameOptions.character) {
+    case 'ninja':
+      return ninjaBg;
+    case 'vaquero':
+      return vaqueroBg;
+    case 'base':
+    default:
+      return baseBg;
+  }
+});
+
+const initializeGame = () => {
+  const wordsForCategory = wordList[props.gameOptions.category][props.lang];
+  currentWord.value = wordsForCategory[Math.floor(Math.random() * wordsForCategory.length)].toUpperCase();
+  guessedLetters.value = new Set();
+  errors.value = 0;
+  won.value = false;
+  gameOver.value = false;
+};
+
+const handleLetterGuess = (letter) => {
+  if (gameOver.value) return;
+
+  const upperCaseLetter = letter.toUpperCase();
+  if (guessedLetters.value.has(upperCaseLetter)) {
+    return;
+  }
+
+  guessedLetters.value.add(upperCaseLetter);
+
+  if (!currentWord.value.includes(upperCaseLetter)) {
+    errors.value++;
+  }
+};
+
+const endGame = (hasWon) => {
+  won.value = hasWon;
+  gameOver.value = true;
+};
+
+const resetGame = () => {
+  initializeGame();
+};
+
+const returnToMenu = () => {
+  emit('endGame');
+};
+
+const getCategoryName = (id) => {
+  return translations[props.lang][id] || id;
+};
+
+const getDifficultyName = (id) => {
+  return translations[props.lang][id] || id;
+};
+
+
+onMounted(() => {
+  initializeGame();
+});
+
+watch(errors, (newVal) => {
+  if (newVal >= props.gameOptions.maxErrors) {
+    endGame(false);
+  }
+});
+
+watch(guessedLetters, () => {
+  const allLettersGuessed = [...currentWord.value].every(letter =>
+    guessedLetters.value.has(letter) || letter === ' '
+  );
+  if (allLettersGuessed) {
+    endGame(true);
+  }
+}, { deep: true });
+
+watch(() => props.gameOptions.category, () => {
+  initializeGame();
+});
+
+watch(() => props.lang, () => {
+  initializeGame();
+});
 </script>
 
 <style scoped>
