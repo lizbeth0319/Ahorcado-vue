@@ -1,4 +1,4 @@
- <template>
+<template>
   <div class="keyboard">
     <button
       v-for="letter in alphabet"
@@ -11,20 +11,20 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'Keyboard',
-  props: ['guessedLetters'],
-  data() {
-    return {
-      alphabet: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
-    };
+<script setup>
+const props = defineProps({
+  guessedLetters: {
+    type: Set,
+    required: true,
   },
-  methods: {
-    guessLetter(letter) {
-      this.$emit('letterGuessed', letter);
-    },
-  },
+});
+
+const emit = defineEmits(['letterGuessed']);
+
+const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+
+const guessLetter = (letter) => {
+  emit('letterGuessed', letter);
 };
 </script>
 
